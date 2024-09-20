@@ -61,29 +61,72 @@ def create_accounts():
 # LIST ALL ACCOUNTS
 ######################################################################
 
-# ... place you code here to LIST accounts ...
+@app.route("/accounts", methods=["GET"])
+def list_accounts():
+    """
+    Retreives the list of the accounts
+    """
+    app.logger.info("Request to list the accounts")
+    accounts = []
+    for account in Account.all():
+        accounts.append(account.serialize())
+    return (jsonify(accounts), status.HTTP_200_OK)
+    
 
 
 ######################################################################
 # READ AN ACCOUNT
 ######################################################################
 
-# ... place you code here to READ an account ...
+@app.route("/accounts/<int:account_id>", methods=["GET"])
+def read_accont(account_id):
+    """
+    Retreives the account if present
+    """
+    app.logger.info("Request to find the Account")
+    account = Account.find(account_id)
+    if account:
+        return account.serialize(), status.HTTP_200_OK
+    return make_response(jsonify({"error": "Account not found"}), status.HTTP_404_NOT_FOUND)
 
 
 ######################################################################
 # UPDATE AN EXISTING ACCOUNT
 ######################################################################
-
-# ... place you code here to UPDATE an account ...
-
+@app.route("/accounts/<int:account_id>", methods=["PUT"])
+def update_account(account_id):
+    """
+    Retreives the account if present and updates it
+    """
+    app.logger.info("Request to update an Account")
+    account = Account.find(account_id)
+    if not account:
+        return make_response(jsonify({"error": "Account not found"}), status.HTTP_404_NOT_FOUND)
+        
+    check_content_type("application/json")
+    new_account = Account()
+    new_account.deserialize(request.get_json())
+    account.name = new_account.name
+    account.address = new_account.address
+    account.phone_number = new_account.phone_number
+    account.date_joined = new_account.date_joined
+    account.update()
+    return account.serialize(), status.HTTP_200_OK
 
 ######################################################################
 # DELETE AN ACCOUNT
 ######################################################################
-
-# ... place you code here to DELETE an account ...
-
+@app.route("/accounts/<int:account_id>", methods=["DELETE"])
+def delete_account(account_id):
+    """
+    Retreives the account if present and delete it
+    """
+    app.logger.info("Request to delete an Account")
+    account = Account.find(account_id)
+    if account:
+        app.logger.error("Request to delete the account: %s", repr(account))
+        account.delete()
+    return jsonify(""), status.HTTP_204_NO_CONTENT
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
@@ -100,3 +143,4 @@ def check_content_type(media_type):
         status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
         f"Content-Type must be {media_type}",
     )
+

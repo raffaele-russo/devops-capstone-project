@@ -61,6 +61,7 @@ def create_accounts():
 # LIST ALL ACCOUNTS
 ######################################################################
 
+
 @app.route("/accounts", methods=["GET"])
 def list_accounts():
     """
@@ -71,7 +72,6 @@ def list_accounts():
     for account in Account.all():
         accounts.append(account.serialize())
     return (jsonify(accounts), status.HTTP_200_OK)
-    
 
 
 ######################################################################
@@ -102,7 +102,7 @@ def update_account(account_id):
     account = Account.find(account_id)
     if not account:
         return make_response(jsonify({"error": "Account not found"}), status.HTTP_404_NOT_FOUND)
-        
+
     check_content_type("application/json")
     new_account = Account()
     new_account.deserialize(request.get_json())
@@ -116,6 +116,8 @@ def update_account(account_id):
 ######################################################################
 # DELETE AN ACCOUNT
 ######################################################################
+
+
 @app.route("/accounts/<int:account_id>", methods=["DELETE"])
 def delete_account(account_id):
     """
@@ -143,4 +145,3 @@ def check_content_type(media_type):
         status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
         f"Content-Type must be {media_type}",
     )
-
